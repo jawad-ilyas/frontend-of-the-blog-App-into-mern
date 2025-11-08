@@ -7,7 +7,7 @@ import { SignIn, SignUp } from './pages/index.js'
 
 import Store from './store/Store.js'
 import { Provider } from 'react-redux'
-
+import { GoogleOAuthProvider } from '@react-oauth/google'
 const router = createBrowserRouter(
   [
     {
@@ -27,13 +27,15 @@ const router = createBrowserRouter(
     }
   ]
 )
-
+const client_id = import.meta.env.VITE_GOOGLE_CLIENT_ID;
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <Provider store={Store}>
-      <RouterProvider router={router} >
-        <App />
-      </RouterProvider>
-    </Provider>
+    <GoogleOAuthProvider clientId={client_id}>
+      <Provider store={Store}>
+        <RouterProvider router={router} >
+          <App />
+        </RouterProvider>
+      </Provider>
+    </GoogleOAuthProvider>
   </StrictMode>,
 )

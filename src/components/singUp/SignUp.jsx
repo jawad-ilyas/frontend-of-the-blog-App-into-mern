@@ -5,6 +5,8 @@ import { FormError } from "../index";
 import { useDispatch } from "react-redux";
 import { signUpUser } from "../../features/authSlice/authSlice";
 import { toast } from "react-toastify";
+import { GoogleLogin } from "@react-oauth/google";
+import { FcGoogle } from "react-icons/fc"; // Google icon
 
 const SignUp = () => {
 
@@ -30,7 +32,7 @@ const SignUp = () => {
                 // reset();
             }
             else {
-                toast.error("❌" + res?.payload?.error );
+                toast.error("❌" + res?.payload?.error);
 
             }
         }).catch((err) => {
@@ -38,6 +40,17 @@ const SignUp = () => {
 
         })
     }
+
+    const handleGoogleLoginSuccess = (credentialResponse) => {
+        console.log("Google credential:", credentialResponse.credential);
+
+        // Here you can send credential to your backend
+        // fetch("/api/auth/google-login", { ... })
+    };
+
+    const handleGoogleLoginError = () => {
+        console.log("Google login failed");
+    };
     return (
         <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-amber-100 via-orange-200 to-rose-100 p-6 relative overflow-hidden">
 
@@ -144,10 +157,22 @@ const SignUp = () => {
                                 </div>
 
                                 {/* social buttons */}
-                                <div className="grid grid-cols-3 gap-3 mt-3">
-                                    <button className="rounded-lg bg-white/70 border border-rose-200 py-2 text-sm text-rose-900 hover:bg-white">
-                                        Google
-                                    </button>
+                                <div className="grid grid-cols-1 gap-3 mt-3">
+                                    <GoogleLogin
+                                        onSuccess={handleGoogleLoginSuccess}
+                                        onError={handleGoogleLoginError}
+                                        
+                                        render={(renderProps) => (
+                                            <button
+                                                onClick={renderProps.onClick}
+                                                disabled={renderProps.disabled}
+                                                className="flex items-center justify-center gap-2 w-full rounded-lg bg-white/90 border border-rose-200 py-2 text-sm font-medium text-rose-900 hover:bg-white transition"
+                                            >
+                                                <FcGoogle size={20} /> {/* Google icon */}
+                                            </button>
+                                        )}
+                                    />
+
                                     <button className="rounded-lg bg-white/70 border border-rose-200 py-2 text-sm text-rose-900 hover:bg-white">
                                         GitHub
                                     </button>
