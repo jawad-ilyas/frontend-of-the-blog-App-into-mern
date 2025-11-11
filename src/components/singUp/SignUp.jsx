@@ -3,13 +3,14 @@ import { Input } from "../index"
 import { useForm } from "react-hook-form"
 import { FormError } from "../index";
 import { useDispatch } from "react-redux";
-import { signUpUser } from "../../features/authSlice/authSlice";
+import { googleSignUp, signUpUser } from "../../features/authSlice/authSlice";
 import { toast } from "react-toastify";
 import { GoogleLogin } from "@react-oauth/google";
 import { FcGoogle } from "react-icons/fc"; // Google icon
+import { useNavigate } from "react-router-dom";
 
 const SignUp = () => {
-
+    const navigate = useNavigate();
 
     const { register, handleSubmit, reset, watch, formState: { errors } } = useForm()
     const [showPassword, setShowPassword] = useState(false)
@@ -23,26 +24,48 @@ const SignUp = () => {
         console.log('====================================');
         console.log("sign Up :: signUpHandler :: data", data);
         console.log('====================================');
-        dispatch(signUpUser(data)).then((res) => {
-            console.log("signup :: signUp :: res :: ", res?.payload);
-            console.log("signup :: signUp :: res :: ", res?.payload?.success);
-            console.log("signup :: signUp :: res :: ", res?.payload?.data);
-            console.log("signup :: signUp :: res :: ", res?.payload?.data?.success);
-            if (res?.payload?.success) {
-                // reset();
-            }
-            else {
-                toast.error("❌" + res?.payload?.error);
+        dispatch(signUpUser(data))
+            .then((res) => {
+                console.log('====================================');
+                console.log("res " , res);
+                console.log('====================================');
 
-            }
-        }).catch((err) => {
-            console.log("signup :: signUp :: err :: ", err);
+                if (res?.payload?.success) {
+                    reset();
+                    navigate("/signin")
 
-        })
+                }
+                else {
+                    toast.error("❌" + res?.payload?.error);
+
+                }
+            }).catch((err) => {
+                console.log("signup :: signUp :: err :: ", err);
+
+            })
     }
 
     const handleGoogleLoginSuccess = (credentialResponse) => {
-        console.log("Google credential:", credentialResponse.credential);
+        console.log('====================================');
+        console.log("sign Up :: handleGoogleLoginSuccess :: Google credential", credentialResponse.credential);
+        console.log('====================================');
+        dispatch(googleSignUp(credentialResponse?.credential))
+            .then((res) => {
+                console.log("sign Up :: handleGoogleLoginSuccess ::res", res);
+
+                if (res?.payload?.success) {
+                    navigate("/signin")
+                    // reset();
+                }
+                else {
+                    toast.error("❌ Again Sign Up");
+                }
+            })
+            .catch((err) => {
+                console.log("signup :: handleGoogleLoginSuccess :: err :: ", err);
+                toast.error("❌ Again Sign Up");
+
+            })
 
         // Here you can send credential to your backend
         // fetch("/api/auth/google-login", { ... })
@@ -50,6 +73,8 @@ const SignUp = () => {
 
     const handleGoogleLoginError = () => {
         console.log("Google login failed");
+        toast.error("Google login failed");
+
     };
     return (
         <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-amber-100 via-orange-200 to-rose-100 p-6 relative overflow-hidden">
@@ -161,7 +186,7 @@ const SignUp = () => {
                                     <GoogleLogin
                                         onSuccess={handleGoogleLoginSuccess}
                                         onError={handleGoogleLoginError}
-                                        
+
                                         render={(renderProps) => (
                                             <button
                                                 onClick={renderProps.onClick}
